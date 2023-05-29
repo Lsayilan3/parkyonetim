@@ -40,6 +40,7 @@ export default function OrAcilises() {
     setShowDeleteModal(true);
   };
   const handleDeleteModalClose = () => setShowDeleteModal(false);
+  
   const handleEditModalOpen = (item) => {
     setSelectedData(item);
     setNewData({

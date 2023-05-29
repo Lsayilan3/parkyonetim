@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { Button, Modal, Form } from "react-bootstrap";
+import { Button, Modal, Form, Table } from "react-bootstrap";
 
 export default function Pratik() {
   // Api Cek
@@ -25,14 +25,14 @@ export default function Pratik() {
 
   // Api Ekle
 
+  const [modelEkle, setModelEkle] = useState(false);
+
   const [yeniData, setYeniData] = useState({
     orAcilisId: 0,
     photo: "",
     detay: "",
   });
-
-  const [modelEkle, setModelEkle] = useState(false);
-
+  
   const modelEkleAc = () => setModelEkle(true);
   const modelEkleKapat = () => setModelEkle(false);
 
@@ -62,48 +62,75 @@ export default function Pratik() {
 
   const [modelSil, setModelSil] = useState(false);
 
-  const [veriSec, setVeriSec] = useState({});
+  const [veriSec, setVeriSec] = useState([]);
 
   const modelSilAc = (item) => {
     setVeriSec(item);
     setModelSil(true);
   };
 
-  const modelSilKapat = () => setModelSil(false)
+  const modelSilKapat = () => setModelSil(false);
 
   const apiSil = async () => {
-    try{
-      const token = localStorage.getItem("token")
-      const sonuc = await axios.delete(apiUrl,{
-        headers:{
-          Authorization: `Bearer ${token}`
+    try {
+      const token = localStorage.getItem("token");
+      const sonuc = await axios.delete(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-        data:{
-          orAcilisId: veriSec.orAcilisId
-        }
-      })
+        data: {
+          orAcilisId: veriSec.orAcilisId,
+        },
+      });
       modelSilKapat();
       apiCek();
-    }catch(error){
-      console.log(error)
+    } catch (error) {
+      console.log(error);
     }
-  }
- 
+  };
+
+  // Api Guncelle
+
+  const [modelGuncelle, setModelGuncelle] = useState(false);
+
+  const modelGuncelleAc = (item) => {
+    setVeriSec(item);
+    setYeniData({
+      orAcilisId: item.orAcilisId,
+      photo: item.photo,
+      detay: item.detay,
+    });
+    setModelGuncelle(true);
+  };
+
+  const modelGuncelleKapat = () => setModelGuncelle(false);
+
+  const apiGuncelle = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const sonuc = await axios.put(apiUrl, yeniData, {
+        headers: {
+          Authorazition: `Bearer ${token}`,
+        },
+      });
+      modelGuncelleKapat();
+      apiCek();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div>
-      <table>
+      <Table>
         <thead>
           <tr>
             <th>OrAcilisId</th>
             <th>Photo</th>
             <th>Detay</th>
-              <Button
-                style={{ width: 128 }}
-                variant="info"
-                onClick={modelEkleAc}
-              >
-                Ürün Ekle
-              </Button>
+            <Button style={{ width: 118 }} variant="info" onClick={modelEkleAc}>
+              Ürün Ekle
+            </Button>
           </tr>
         </thead>
         <tbody>
@@ -112,13 +139,17 @@ export default function Pratik() {
               <td>{item.orAcilisId}</td>
               <td>{item.photo}</td>
               <td>{item.detay}</td>
-              <Button variant="danger" onClick={() => modelSilAc(item)}>
-                Delete
+              <Button variant="warning" onClick={() => modelSilAc(item)}>
+                Deletee
+              </Button>
+
+              <Button variant="warning" onClick={() => modelGuncelleAc(item)}>
+                Edit
               </Button>
             </tr>
           ))}
         </tbody>
-      </table>
+      </Table>
       {/* Api Ekle */}
       <Modal style={{ marginTop: 50 }} show={modelEkle} onHide={modelEkleKapat}>
         <Modal.Header closeButton>
@@ -171,6 +202,49 @@ export default function Pratik() {
           </Button>
           <Button variant="danger" onClick={apiSil}>
             Delete
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal
+        style={{ marginTop: 50 }}
+        show={modelGuncelle}
+        onHide={modelGuncelleKapat}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Edit Data</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group controlId="formPhoto">
+              <Form.Label>Photo</Form.Label>
+              <Form.Control
+                type="text"
+                name="photo"
+                placeholder="Enter photo url"
+                value={yeniData.photo}
+                onChange={degistir}
+              />
+            </Form.Group>
+
+            <Form.Group controlId="formDetail">
+              <Form.Label>Detail</Form.Label>
+              <Form.Control
+                type="text"
+                name="detay"
+                placeholder="Enter detay"
+                value={yeniData.detay}
+                onChange={degistir}
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={modelGuncelleKapat}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={apiGuncelle}>
+            Save Changes
           </Button>
         </Modal.Footer>
       </Modal>
